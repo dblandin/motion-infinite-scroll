@@ -29,11 +29,16 @@ class BeersController < UIViewController
 
     API.shared.get('beers', styleId: style_id, p: current_page) do |success, operation, response_or_error|
       if success
-        @data.concat(response_or_error['data'])
+        new_data = response_or_error['data']
+
+        start_index, end_index = data.count, data.count + new_data.count - 1
+
+        data.concat(new_data)
 
         @current_page += 1
 
-        table.reloadData
+        index_paths = (start_index..end_index).map { |index| NSIndexPath.indexPathForRow(index, inSection: 0) }
+        table.insertRowsAtIndexPaths(index_paths, withRowAnimation: UITableViewRowAnimationAutomatic)
 
         if response_or_error['currentPage'] == response_or_error['numberOfPages']
           @done_fetching = true

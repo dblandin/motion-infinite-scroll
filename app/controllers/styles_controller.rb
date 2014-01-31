@@ -24,9 +24,15 @@ class StylesController < UIViewController
   def load_data
     API.shared.get('styles') do |success, operation, response_or_error|
       if success
-        @data = response_or_error['data']
+        new_data = response_or_error['data']
 
-        table.reloadData
+        start_index, end_index = data.count, data.count + new_data.count - 1
+
+        data.concat(new_data)
+
+        index_paths = (start_index..end_index).map { |index| NSIndexPath.indexPathForRow(index, inSection: 0) }
+
+        table.insertRowsAtIndexPaths(index_paths, withRowAnimation: UITableViewRowAnimationAutomatic)
       else
         p "Error: #{response_or_error.localizedDescription}"
       end
